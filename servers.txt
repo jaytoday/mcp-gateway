@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "demo-server": {
+      "command": "python",
+      "args": ["mcp_servers/demo_server.py"],
+      "transport": "stdio"
+    },
+    "airbnb": {
+      "command": "npx",
+      "args": ["@openbnb/mcp-server-airbnb", "--ignore-robots-txt"],
+      "transport": "stdio"
+    },
+    "google-remote": {
+      "command": "npx",
+      "args": ["mcp-remote", "https://google.mcp-farm.com/mcp"],
+      "transport": "http"
+    }
+  }
+}
