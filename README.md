@@ -83,80 +83,26 @@ cd mcp-gateway
 - `demo.py` - Interactive demo script
 - `Makefile` - Convenient commands (`make start`, `make demo`, etc.)
 
-### Option 2: Manual Setup
-
-```bash
-git clone https://github.com/placeholder-labs/mcp-gateway.git
-cd mcp-gateway
-python3 -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -r requirements.txt
-cp .env.example .env
-```
-
-### Option 3: Production Installation
-
-```bash
-pip install mcp-gateway  # Coming soon
-```
-
-## 🎮 Try the Gateway
+## Try the Gateway
 
 After running `./scripts/quick-start.sh`, you have multiple ways to explore:
 
-### 1. Automated Demo (Easiest)
-```bash
-make start    # Terminal 1: Start gateway
-make demo     # Terminal 2: See it in action
-```
-
-### 2. Interactive HTTP Client
+### 1. Interactive HTTP Client
 ```bash
 make start         # Terminal 1: Start gateway
 make example-http  # Terminal 2: Run HTTP client
 ```
 
-### 3. MCP Protocol Client
+### 2. MCP Protocol Client
 ```bash
 make start              # Terminal 1: Gateway
 make example-mcp-server # Terminal 2: MCP wrapper
 make example-mcp        # Terminal 3: MCP client
 ```
 
-**Common commands:**
-- `make help` - See all available commands
-- `make example-http` - Run HTTP client example
-- `make example-mcp-server` - Start MCP server wrapper
-- `make example-mcp` - Run MCP client example
-- `make dev-shell` - Enter development environment
-- `source venv/bin/activate` - Manually activate virtual environment
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Description | Required | Default |
-|----------|-------------|----------|---------|
-| `OPENAI_API_KEY` | OpenAI API key for intelligent routing | No | - |
-| `REDIS_HOST` | Redis server hostname | No | localhost |
-| `REDIS_PORT` | Redis server port | No | 6379 |
-| `GATEWAY_HOST` | Gateway server host | No | localhost |
-| `GATEWAY_PORT` | Gateway server port | No | 8000 |
-| `LOG_LEVEL` | Logging level | No | INFO |
-
-### Running Without Redis
-
-The gateway can run without Redis by using only the HTTP API endpoints. Redis is used for queue-based processing, tool inventory caching, and request/response storage. If you don't need queue-based messaging, you can:
-
-1. **Use HTTP API Only**: Access all functionality through REST endpoints like `/mcp/search`, `/mcp/execute`, `/mcp/tools`, and `/mcp/servers`
-2. **Skip Redis Setup**: Simply don't configure Redis environment variables - the gateway will still start and serve HTTP requests
-3. **In-Memory Sessions**: Session management uses in-memory storage by default, no external dependencies required
-
-The HTTP API provides complete functionality including tool routing, server management, and session handling without any Redis dependencies.
-
 ### Adding MCP Servers
 
-MCP servers can be configured via HTTP API or by modifying the server configuration. Example servers are provided in the `mcp_servers/` directory.
+MCP servers can be configured via HTTP API or by modifying the server configuration. Example locally developed servers are provided in the `mcp_servers/` directory, but the gateway can connect to MCP servers run remotely and via npx.
 
 ## Gateway Endpoints
 
@@ -324,9 +270,9 @@ Most endpoints support session isolation using the `X-Session-ID` header:
 
 This allows multiple users or applications to maintain separate MCP server environments while sharing the same gateway instance.
 
-### Queue-based Processing
+### [OPTIONAL] Queue-based Processing
 
-The gateway also supports Redis queue-based processing for asynchronous operations:
+The gateway also optionally supports Redis queue-based processing for asynchronous operations:
 
 - **Request Queue**: `mcp_requests`
 - **Response Queue**: `mcp_responses`
@@ -334,30 +280,11 @@ The gateway also supports Redis queue-based processing for asynchronous operatio
 This enables integration with job queue systems and asynchronous processing workflows.
 
 
-## 📁 Project Structure
-
-```
-├── gateway.py              # Main gateway service
-├── mcp_remote.py           # MCP server wrapper for the gateway
-├── session.py              # Session management
-├── mcp_servers/            # Example MCP servers
-│   └── exa_server.py      # Exa search server example
-├── examples/               # Example client implementations
-│   ├── example_client_http.py  # HTTP API client example
-│   ├── example_client_mcp.py   # MCP protocol client example
-│   └── README.md          # Examples documentation
-├── client/                 # Client libraries
-│   ├── client.py          # Python client
-│   └── requirements.txt   # Client dependencies
-├── requirements.txt        # Core dependencies
-└── pyproject.toml         # Package configuration
-```
-
 ## Examples
 
 ### 🚀 Ready-to-Run Examples
 
-We provide complete example clients in the `examples/` directory:
+Complete example clients are in the `examples/` directory:
 
 #### HTTP API Client (`examples/example_client_http.py`)
 **Architecture**: Direct REST API integration with the gateway
@@ -396,120 +323,9 @@ make example-mcp
 
 See [`examples/README.md`](examples/README.md) for detailed documentation.
 
-### 🔧 Quick Integration Snippets
-
-#### HTTP API Integration
-
-```python
-import httpx
-import asyncio
-
-async def use_gateway():
-    async with httpx.AsyncClient() as client:
-        # List available tools
-        tools = await client.get("http://localhost:8000/tools")
-        print("Available tools:", tools.json())
-        
-        # Execute a search tool
-        result = await client.post(
-            "http://localhost:8000/tool",
-            json={
-                "name": "search_web",
-                "arguments": {"query": "MCP protocol documentation"}
-            }
-        )
-        print("Search result:", result.json())
-
-asyncio.run(use_gateway())
-```
-
-#### MCP Server Integration
-
-```bash
-# Start the gateway
-python gateway.py
-
-# In another terminal, start the MCP server wrapper
-python mcp_remote.py --port 3000
-
-# Now agents can connect to localhost:3000/mcp as an MCP server
-# The wrapper will proxy all requests to your gateway
-```
-
-### Example 3: Adding Custom MCP Servers
-
-```python
-# Create your custom server in mcp_servers/my_server.py
-# Then add it via HTTP API:
-
-import httpx
-
-config = {
-    "mcpServers": {
-        "my_custom_server": {
-            "command": "python",
-            "args": ["mcp_servers/my_server.py"],
-            "env": {"API_KEY": "your_key_here"}
-        }
-    }
-}
-
-async with httpx.AsyncClient() as client:
-    response = await client.post(
-        "http://localhost:8000/add-server",
-        json=config
-    )
-    print("Server added:", response.json())
-```
-
-### Example 4: Self-Hosting with Docker
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-EXPOSE 8000
-
-CMD ["python", "gateway.py"]
-```
-
-```bash
-# Build and run
-docker build -t mcp-gateway .
-docker run -p 8000:8000 -e OPENAI_API_KEY=your_key mcp-gateway
-```
-
-## Contributing
-
-Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🔧 Modular Architecture
-
-This gateway is intentionally designed with **lightweight, replaceable components** to make it easy for developers to customize and scale according to their needs. Key modular points include:
-
-- **Tool Routing**: Currently uses OpenAI for semantic matching, but can be swapped for vector embeddings, regex patterns, or custom algorithms
-- **Queue System**: Redis-based queue processing can be replaced with RabbitMQ, Kafka, or in-memory alternatives  
-- **Session Storage**: In-memory storage is provided for development - easily replace with PostgreSQL, MongoDB, or distributed stores
-- **LLM Provider**: OpenAI integration can be swapped for Claude, local models, or any chat completion API
-- **Transport Protocols**: Supports stdio/HTTP/SSE out of the box - extend with WebSocket, gRPC, or custom protocols
-- **Authentication**: Ready for extension with JWT, API keys, or OAuth integration
-- **Configuration**: JSON/env file based - can be enhanced with Consul, etcd, or Kubernetes ConfigMaps
-
-The codebase uses clear interfaces and dependency injection patterns, making component replacement straightforward. Start with the pieces most relevant to your infrastructure and gradually enhance others as needed.
 
 ## Support
 
