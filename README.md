@@ -3,7 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
-A **lightweight, modular, and self-hostable** routing proxy for agent traffic to [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers. This gateway enables seamless integration between AI agents and MCP servers, providing intelligent request routing, session management, and usage analytics.
+A **lightweight, modular, and self-hostable** routing proxy for agent traffic to [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) servers. This gateway enables seamless integration between AI agents and MCP servers, providing intelligent request routing, session management, and usage analytics. There are some very interesting downstream applications of a more involved version of this but I wanted to just release a very lightweight and extendable version :)
 
 **Self-Host Ready**: Single Python file deployment with minimal dependencies  
 **Highly Modular**: Easy to extend, modify, and customize for your specific needs  
