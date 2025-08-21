@@ -18,21 +18,51 @@ A **lightweight, modular, and self-hostable** routing proxy for agent traffic to
 - **Usage Analytics**: Built-in metrics and monitoring capabilities
 - **Extensible**: Easy to add new MCP servers and custom routing logic
 
-## 🚀 Quick Start (30 seconds)
+## Architecture
 
-**Zero-config demo that works without API keys:**
+The MCP Gateway uses a simple, modular architecture designed for easy self-hosting and customization:
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   AI Agents     │    │  MCP Gateway    │    │   Any Tool      │
+│                 │    │                 │    │                 │
+│ • Claude Code   │◄──►│ • Smart Routing │◄──►│ • MCP           │
+│ • Custom Agents │    │ • Session Mgmt  │    │ • Other Agents  │
+│ • LLM Apps      │    │ • HTTP/MCP APIs │    │ • (any endpoint)│
+│                 │    │                 │    │                 │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+### Two Integration Paths
+
+1. **HTTP API Mode**: Direct REST API calls to the gateway
+   - Perfect for web apps, microservices, and custom integrations
+   - Simple HTTP POST/GET requests
+   - Session management via headers
+
+2. **MCP Server Mode**: Gateway acts as an MCP server itself
+   - Use `mcp_remote.py` to expose gateway as an MCP server
+   - Native MCP protocol support
+   - Seamless integration with MCP-compatible agents
+
+### Core Components
+
+- **`gateway.py`**: Main routing engine with intelligent tool matching (currently supports all MCPs, can be extended to generic tools)
+- **`session.py`**: Stateful session management for multi-turn conversations  
+- **`mcp_remote.py`**: MCP server wrapper for native protocol support
+- **`mcp_servers/`**: Example server implementations you can extend
+- **`servers.txt`**: List of any MCPs you want to support
+
+## 🚀 Quick Start (30 seconds)
 
 ```bash
 git clone https://github.com/placeholder-labs/mcp-gateway.git
 cd mcp-gateway
 ./scripts/quick-start.sh  # Sets up everything automatically
-make start               # Terminal 1: Start gateway
-make demo               # Terminal 2: Run interactive demo
 ```
 
 This creates a complete working environment with:
 - Virtual environment and dependencies
-- Demo MCP server with basic tools (time, calculator, echo)
 - Environment configuration ready for customization
 - Makefile with convenient commands
 
@@ -303,39 +333,6 @@ The gateway also supports Redis queue-based processing for asynchronous operatio
 
 This enables integration with job queue systems and asynchronous processing workflows.
 
-## Architecture
-
-The MCP Gateway uses a simple, modular architecture designed for easy self-hosting and customization:
-
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   AI Agents     │    │  MCP Gateway    │    │   MCP Servers   │
-│                 │    │                 │    │                 │
-│ • Claude Code   │◄──►│ • Smart Routing │◄──►│ • Search Tools  │
-│ • Custom Agents │    │ • Session Mgmt  │    │ • File Tools    │
-│ • LLM Apps      │    │ • HTTP/MCP APIs │    │ • Custom Tools  │
-│                 │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
-### Two Integration Paths
-
-1. **HTTP API Mode**: Direct REST API calls to the gateway
-   - Perfect for web apps, microservices, and custom integrations
-   - Simple HTTP POST/GET requests
-   - Session management via headers
-
-2. **MCP Server Mode**: Gateway acts as an MCP server itself
-   - Use `mcp_remote.py` to expose gateway as an MCP server
-   - Native MCP protocol support
-   - Seamless integration with MCP-compatible agents
-
-### Core Components
-
-- **`gateway.py`**: Main routing engine with intelligent tool matching
-- **`session.py`**: Stateful session management for multi-turn conversations  
-- **`mcp_remote.py`**: MCP server wrapper for native protocol support
-- **`mcp_servers/`**: Example server implementations you can extend
 
 ## 📁 Project Structure
 

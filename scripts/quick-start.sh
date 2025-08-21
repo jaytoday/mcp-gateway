@@ -230,10 +230,6 @@ start:  ## Start the gateway server
 	@echo "🚀 Starting MCP Gateway..."
 	@source venv/bin/activate && python gateway.py
 
-demo:  ## Run the interactive demo
-	@echo "🎮 Running demo..."
-	@source venv/bin/activate && python demo.py
-
 example-http:  ## Run the HTTP client example (requires gateway to be running)
 	@echo "🌐 Running HTTP client example..."
 	@echo "Make sure the gateway is running first with 'make start'"
@@ -256,13 +252,6 @@ clean:  ## Clean up virtual environment and cache files
 	@rm -rf *.pyc
 	@find . -name "*.pyc" -delete
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
-
-test:  ## Run tests (when available)
-	@source venv/bin/activate && python -m pytest tests/ || echo "No tests found"
-
-dev-shell:  ## Activate development shell
-	@echo "Activating development environment..."
-	@exec bash --init-file <(echo "source venv/bin/activate; echo '🔧 Development environment activated'")
 EOF
 
 print_success "Makefile created"
@@ -273,6 +262,17 @@ echo "=================="
 echo ""
 echo "Quick commands to get started:"
 echo ""
+echo -e "${YELLOW}📝 Next steps:${NC}"
+echo "  1. Edit .env to add your API keys (required for clients to run)"
+echo "  2. Run 'make start' to start the gateway"
+echo "  _________________________________________________________"
+echo "  To see an example of an agent client which uses http to interact with the gateway:"
+echo "  3. In another terminal, run 'make example-http'"
+echo "  _________________________________________________________"
+echo "  To see an example of an agent client which uses mcp to interact with the gateway:"
+echo "  4. In another terminal, run 'make example-mcp-server' to start the MCP server"
+echo "  5. In another terminal, run 'make example-mcp'"
+echo ""
 echo -e "${GREEN}# Start the gateway:${NC}"
 echo "  make start"
 echo "  # OR: source venv/bin/activate && python gateway.py"
@@ -280,10 +280,5 @@ echo ""
 echo -e "${GREEN}# Try the example clients:${NC}"
 echo "  make example-http      # HTTP client (needs gateway running)"
 echo "  make example-mcp-server && make example-mcp  # MCP client (3 terminals)"
-echo ""
-echo -e "${YELLOW}📝 Next steps:${NC}"
-echo "  1. Edit .env to add your API keys (optional for demo)"
-echo "  2. Run 'make start' to start the gateway"
-echo "  3. In another terminal, run 'make demo' to see it work"
 echo ""
 echo -e "${BLUE}💡 Use 'make help' to see all available commands${NC}"
